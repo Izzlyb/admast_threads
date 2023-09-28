@@ -1,25 +1,27 @@
 "use client";
 
-import { ChangeEvent, useState } from "react";
 import { useForm } from "react-hook-form";
+import { ChangeEvent, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UserValidation } from "@/lib/validations/user";
+import * as z from "zod";
+import Image from "next/image";
+import { isBase64Image } from "@/lib/utils";
+import { useUploadThing } from "@/lib/uploadthing";
+import { updateUser } from "@/lib/actions/user.actions";
+import { usePathname, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
+  FormMessage
 } from "@/components/ui/form";
-import * as z from "zod";
-import Image from "next/image";
-import { Input } from "@/components/ui/input";
-import { isBase64Image } from "@/lib/utils";
-import { useUploadThing } from "@/lib/uploadthing";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Props {
   user: {
@@ -34,7 +36,11 @@ interface Props {
 };
 
 const AccountProfile = ({ user, btnTitle }: Props ) => {
-  const [files, setFiles] = useState<File[]>([])
+  const [files, setFiles] = useState<File[]>([]);
+  const { startUpload } = useUploadThing("media");
+  const router = useRouter();
+  const pathname = usePathname();
+
 
   const form = useForm({
     resolver: zodResolver(UserValidation),
@@ -82,7 +88,20 @@ const AccountProfile = ({ user, btnTitle }: Props ) => {
       }
     }
 
-    // TODO: Update user profile
+    await updateUser( {
+      userId: user.id,
+      username: values.username,
+      name: values.name,
+      bio: values.bio,
+      image: values.profile_photo,
+      path: pathname
+    });
+
+    if( pathname === "/profile/edit" ) {
+      router.back();
+    } else {
+      router.push("/");
+    }
   }
 
   return (
@@ -124,6 +143,7 @@ const AccountProfile = ({ user, btnTitle }: Props ) => {
                     onChange={(e) => handleImage(e, field.onChange)}
                   />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -136,14 +156,15 @@ const AccountProfile = ({ user, btnTitle }: Props ) => {
                 <FormLabel className="text-base-semibold text-light-2">
                   Name
                 </FormLabel>
-                <FormControl >
+                <FormControl className="border" >
                   <Input 
                       type="text"
                       className="account-form_image-input no-focus "
                       {...field}
                     />
                 </FormControl>
-              </FormItem>
+                <FormMessage />
+                </FormItem>
             )}
           />
 
@@ -158,10 +179,11 @@ const AccountProfile = ({ user, btnTitle }: Props ) => {
                 <FormControl >
                   <Input 
                       type="text"
-                      className="account-form_image-input no-focus "
+                      className="account-form_image-input no-focus"
                       {...field}
                     />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
          />
@@ -175,16 +197,16 @@ const AccountProfile = ({ user, btnTitle }: Props ) => {
                 Bio
               </FormLabel>
               <FormControl className="flex-1 text-base-semibold text-gray-200">
-                <textarea
+                <Textarea
                     rows={10}
-                    className="account-form_image-input no-focus "
+                    className="account-form_image-input no-focus"
                     {...field}
                   />
               </FormControl>
+              <FormMessage />
             </FormItem>
             )}
           />
-
 
         <Button type="submit">Submit</Button>
       </form>

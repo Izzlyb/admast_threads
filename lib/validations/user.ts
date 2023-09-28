@@ -6,5 +6,3 @@ export const UserValidation = z.object ({
   username: z.string().min(3, { message: "Minimum 3, Maximum 30 Characters"}).max(30),
   bio: z.string().min(3, { message: "Minimum 3, Maximum 1000 Characters"}).max(1000),
 })
-
-
