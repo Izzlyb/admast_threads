@@ -16,7 +16,7 @@ async function Page() {
   const userInfo = await fetchUser(user.id);
 
   console.log(`on create-tread: from database userInfo: ${userInfo.id}.`, "color:blue; font-size:40px");
-  // if( !userInfo?.onborded ) redirect("/onboarding");
+  if( !userInfo?.onboarded ) redirect("/onboarding");
 
   return (
     <>

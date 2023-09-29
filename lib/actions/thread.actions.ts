@@ -12,6 +12,7 @@ interface Params {
   path: string,
 }
 
+
 export async function createThread({text, author, communityId, path }: Params ) {
   
   try {
@@ -34,6 +35,7 @@ export async function createThread({text, author, communityId, path }: Params ) 
     throw new Error(`Error creating thread: ${error.message}`);
   }
 }
+
 
 export async function fetchPosts(pageNumber = 1, pageSize = 20 ) {
   try {
@@ -65,10 +67,11 @@ export async function fetchPosts(pageNumber = 1, pageSize = 20 ) {
 
     return { posts, isNext };
 
-  } catch (error) {
+  } catch (error) { 
       console.log(error);
   }
 }
+
 
 export async function fetchThreadById(id: string) {
   try {
