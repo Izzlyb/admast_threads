@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import Thread from "../models/thread.model";
 import User from "../models/user.model";
 import { connectToDB } from "../mongoose";
+import Community from "../models/community.model";
 
 interface Params {
   text: string,
@@ -18,10 +19,15 @@ export async function createThread({text, author, communityId, path }: Params ) 
   try {
     connectToDB();
 
+    const communityIdObject = await Community.findOne(
+      { id: communityId },
+      { _id: 1 }
+    );
+
     const createdThread = await Thread.create({
       text,
       author,
-      community: null,
+      community: communityId,
     });
   
     console.log(`Thread created successfully: ${createdThread.text}`);
@@ -30,6 +36,13 @@ export async function createThread({text, author, communityId, path }: Params ) 
         $push: { threads: createdThread._id }
     })
   
+    if (communityIdObject) {
+      // Update Community model
+      await Community.findByIdAndUpdate(communityIdObject, {
+        $push: { threads: createdThread._id },
+      });
+    }
+
     revalidatePath(path);
   } catch (error: any) {
     throw new Error(`Error creating thread: ${error.message}`);
@@ -75,10 +88,7 @@ export async function fetchPosts(pageNumber = 1, pageSize = 20 ) {
 
 export async function fetchThreadById(id: string) {
   try {
-
     connectToDB();
-
-    // TODO: populate community:
 
     const thread = await Thread.findById(id)
         .populate({
@@ -86,6 +96,11 @@ export async function fetchThreadById(id: string) {
           model: User,
           select: "_id id name image"
         })
+        .populate({
+          path: "communities",
+          model: Community,
+          select: "_id id name image",
+        }) // Populate the community field with _id and name
         .populate( {
           path: 'children',
           populate: [
@@ -104,7 +119,8 @@ export async function fetchThreadById(id: string) {
               }
             }
           ],
-        }).exec();
+        })
+        .exec();
 
         return thread;
 

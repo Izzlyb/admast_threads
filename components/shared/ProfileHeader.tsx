@@ -9,7 +9,7 @@ interface Props {
   username : string;
   imgUrl : string;
   bio : string;
-  type?: string;
+  type?: 'User' | 'Community';
 }
 
 const ProfileHeader = ({
@@ -18,18 +18,19 @@ const ProfileHeader = ({
   name, 
   username, 
   imgUrl, 
-  bio}: Props ) => {
-  return ( 
+  bio,
+  type }: Props ) => {
+  return (
     <div className='flex w-full flex-col justify-start'>
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-3'>
           <div className='relative h-20 w-20 object-cover'>
             <Image
-              src={imgUrl}
-              alt='logo'
-              fill
-              className='rounded-full object-cover shadow-2xl'
-            />
+                src={imgUrl}
+                alt='logo'
+                fill
+                className='rounded-full object-cover shadow-2xl'
+              />
           </div>
 
           <div className='flex-1'>

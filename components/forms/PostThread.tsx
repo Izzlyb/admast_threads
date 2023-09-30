@@ -29,7 +29,6 @@ interface Props {
 function PostThread({ userId }: { userId: string }) {
   const router = useRouter();
   const pathname = usePathname();
-
   const { organization } = useOrganization();
 
   const form = useForm<z.infer<typeof ThreadValidation>>({
@@ -41,6 +40,7 @@ function PostThread({ userId }: { userId: string }) {
   });
 
   const onSubmit = async (values: z.infer<typeof ThreadValidation>) => {
+    console.log('Organization Id:', organization )
     await createThread({
       text: values.thread,
       author: userId,
